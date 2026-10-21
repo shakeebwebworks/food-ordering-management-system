@@ -1,0 +1,60 @@
+{# One reusable food card. Usage: {% include "partials/food_card.html" with food=item %} #}
+<article class="food-card {% if not food.is_available %}is-unavailable{% endif %}">
+
+  <div class="food-card-media img-reveal">
+    {% if food.primary_image %}
+      <img src="{{ food.primary_image.image.url }}"
+           alt="{{ food.primary_image.alt_text|default:food.name }}"
+           loading="lazy">
+    {% else %}
+      <div class="food-card-placeholder" role="img" aria-label="{{ food.name }}">
+        <i class="bi bi-egg-fried"></i>
+      </div>
+    {% endif %}
+
+    <span class="food-card-diet">
+      {% if food.is_veg %}
+        <span class="diet-mark diet-veg" role="img" aria-label="Vegetarian"></span>
+      {% else %}
+        <span class="diet-mark diet-nonveg" role="img" aria-label="Non-vegetarian"></span>
+      {% endif %}
+    </span>
+
+    <button class="wishlist-btn" type="button" data-wishlist data-food-id="{{ food.id }}"
+            aria-pressed="false" aria-label="Add {{ food.name }} to wishlist">
+      <i class="bi bi-heart"></i>
+    </button>
+
+    {% if not food.is_available %}
+      <span class="badge-soft badge-cancelled food-card-flag">Currently unavailable</span>
+    {% endif %}
+  </div>
+
+  <div class="food-card-body">
+    {% if food.restaurant %}
+      <p class="small text-muted-soft mb-1">{{ food.restaurant.name }}</p>
+    {% endif %}
+
+    <h3 class="food-card-title"><a href="#">{{ food.name }}</a></h3>
+    <p class="food-card-desc">{{ food.description }}</p>
+
+    <div class="rating mb-2">
+      {% if food.review_count %}
+        <i class="bi bi-star-fill"></i>
+        {{ food.avg_rating|floatformat:1 }}
+        <span class="rating-count">({{ food.review_count }})</span>
+      {% else %}
+        <span class="rating-count">New</span>
+      {% endif %}
+    </div>
+
+    <div class="food-card-footer">
+      <span class="price">₹{{ food.price|floatformat:"-2" }}</span>
+      <button class="btn btn-add" type="button" data-add-to-cart data-food-id="{{ food.id }}"
+              {% if not food.is_available %}disabled{% endif %}>
+        <i class="bi bi-plus-lg me-1"></i>Add
+      </button>
+    </div>
+  </div>
+
+</article>

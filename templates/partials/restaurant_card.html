@@ -1,0 +1,55 @@
+{# One reusable restaurant card. Usage: {% include "partials/restaurant_card.html" with restaurant=item %} #}
+<article class="food-card restaurant-card {% if not restaurant.is_open %}is-unavailable{% endif %}"
+         data-restaurant
+         data-rating="{{ restaurant.avg_rating|stringformat:'.2f' }}"
+         data-time="{{ restaurant.delivery_time_minutes }}"
+         data-price="{{ restaurant.price_range }}"
+         data-veg-only="{{ restaurant.is_veg_only|yesno:'true,false' }}"
+         data-cuisines="{% for cuisine in restaurant.cuisines.all %}{{ cuisine.slug }}{% if not forloop.last %} {% endif %}{% endfor %}">
+
+  <div class="food-card-media img-reveal">
+    {% if restaurant.image %}
+      <img src="{{ restaurant.image.url }}" alt="{{ restaurant.name }}" loading="lazy">
+    {% else %}
+      <div class="food-card-placeholder" role="img" aria-label="{{ restaurant.name }}">
+        <i class="bi bi-shop"></i>
+      </div>
+    {% endif %}
+
+    {% if restaurant.is_open %}
+      <span class="badge-soft badge-delivered restaurant-status"><i class="bi bi-circle-fill" style="font-size: 0.5rem"></i> Open</span>
+    {% else %}
+      <span class="badge-soft badge-cancelled restaurant-status">Closed</span>
+    {% endif %}
+
+    <span class="badge-soft badge-placed restaurant-price" title="Price range">{{ restaurant.get_price_range_display }}</span>
+  </div>
+
+  <div class="food-card-body">
+    <h3 class="food-card-title"><a href="#">{{ restaurant.name }}</a></h3>
+
+    <p class="food-card-desc mb-2">
+      {% for cuisine in restaurant.cuisines.all %}{{ cuisine.name }}{% if not forloop.last %}, {% endif %}{% empty %}Multi-cuisine{% endfor %}
+    </p>
+
+    <ul class="restaurant-meta list-unstyled">
+      <li>
+        {% if restaurant.review_count %}
+          <i class="bi bi-star-fill meta-star"></i> {{ restaurant.avg_rating|floatformat:1 }}
+        {% else %}
+          <i class="bi bi-star"></i> New
+        {% endif %}
+      </li>
+      <li><i class="bi bi-clock"></i> {{ restaurant.delivery_time_minutes }} min</li>
+      <li>
+        <i class="bi bi-bicycle"></i>
+        {% if restaurant.delivery_fee %}₹{{ restaurant.delivery_fee|floatformat:"-2" }}{% else %}Free{% endif %}
+      </li>
+    </ul>
+
+    <p class="restaurant-location">
+      <i class="bi bi-geo-alt"></i> {{ restaurant.location }}, {{ restaurant.city }}
+    </p>
+  </div>
+
+</article>

@@ -1,0 +1,26 @@
+{% extends "accounts/account_base.html" %}
+
+{% block title %}Account settings | Feastly{% endblock %}
+{% block account_title %}Settings{% endblock %}
+
+{% block account_content %}
+<div class="account-card">
+  <h2 class="account-card-title">Change password</h2>
+  <p class="account-card-sub">Choose a strong password you do not use anywhere else.</p>
+
+  <form method="post" novalidate class="account-narrow">
+    {% csrf_token %}
+
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        {% if field.help_text %}<div class="form-hint">{{ field.help_text|safe }}</div>{% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-accent mt-2">Update password</button>
+  </form>
+</div>
+{% endblock %}

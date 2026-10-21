@@ -1,0 +1,83 @@
+<div class="modal fade search-modal" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg">
+    <div class="modal-content">
+
+      <h2 class="visually-hidden" id="searchModalLabel">Search</h2>
+
+      <!-- Search box -->
+      <div class="search-modal-top">
+        <div class="search-bar flex-grow-1">
+          <i class="bi bi-search" aria-hidden="true"></i>
+          <label class="visually-hidden" for="searchInput">Search food, restaurants or categories</label>
+          <input type="search" id="searchInput" placeholder="Search food, restaurants, categories"
+                 autocomplete="off" maxlength="60">
+        </div>
+        <button type="button" class="icon-btn" data-bs-dismiss="modal" aria-label="Close search">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Read aloud by screen readers when results change -->
+        <p class="visually-hidden" id="searchStatus" aria-live="polite"></p>
+
+        <!-- 1. Before typing: recent and popular searches -->
+        <div id="searchIdle">
+          <div class="search-block" id="recentBlock" hidden>
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <h3 class="search-heading mb-0">Recent searches</h3>
+              <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none" id="clearRecent">Clear</button>
+            </div>
+            <div class="chip-list" id="recentList"></div>
+          </div>
+
+          <div class="search-block">
+            <h3 class="search-heading">Popular searches</h3>
+            <div class="chip-list" id="popularList">
+              <span class="skeleton skeleton-button"></span>
+              <span class="skeleton skeleton-button"></span>
+              <span class="skeleton skeleton-button"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. While waiting for results -->
+        <div id="searchLoading" hidden>
+          <span class="skeleton skeleton-title"></span>
+          <span class="skeleton skeleton-text"></span>
+          <span class="skeleton skeleton-text"></span>
+          <span class="skeleton skeleton-text" style="width: 70%"></span>
+        </div>
+
+        <!-- 3. Results -->
+        <div id="searchResults" hidden>
+          <div class="search-block" id="resultFoods" hidden>
+            <h3 class="search-heading">Food</h3>
+            <ul class="result-list" data-list></ul>
+          </div>
+
+          <div class="search-block" id="resultRestaurants" hidden>
+            <h3 class="search-heading">Restaurants</h3>
+            <ul class="result-list" data-list></ul>
+          </div>
+
+          <div class="search-block" id="resultCategories" hidden>
+            <h3 class="search-heading">Categories</h3>
+            <div class="chip-list" data-list></div>
+          </div>
+        </div>
+
+        <!-- 4. Nothing found -->
+        <div id="searchEmpty" hidden>
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+            <h3>No results found</h3>
+            <p>We couldn't find anything for "<span id="searchEmptyQuery"></span>". Check the spelling or try a different word.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

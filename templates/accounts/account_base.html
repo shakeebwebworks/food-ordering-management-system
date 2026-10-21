@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link href="{% static 'css/account.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+  <div class="mb-4">
+    <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">My account</p>
+    <h1 class="h2 mb-0">{% block account_title %}Account{% endblock %}</h1>
+  </div>
+
+  <div class="row g-4 g-lg-5">
+
+    <!-- Side menu -->
+    <div class="col-lg-3">
+      <nav class="account-nav" aria-label="Account sections">
+        <div class="account-user">
+          <span class="account-avatar" aria-hidden="true">{{ user.username|slice:":1"|upper }}</span>
+          <span class="account-user-text">
+            <strong>{{ user.get_full_name|default:user.username }}</strong>
+            {% if user.email %}<small>{{ user.email }}</small>{% endif %}
+          </span>
+        </div>
+
+        <ul class="account-menu">
+          <li>
+            <a class="account-link {% if section == 'profile' %}is-active{% endif %}"
+               {% if section == 'profile' %}aria-current="page"{% endif %} href="{% url 'accounts:profile' %}">
+              <i class="bi bi-person"></i> Profile
+            </a>
+          </li>
+          <li>
+            <a class="account-link {% if section == 'addresses' %}is-active{% endif %}"
+               {% if section == 'addresses' %}aria-current="page"{% endif %} href="{% url 'accounts:addresses' %}">
+              <i class="bi bi-geo-alt"></i> Addresses
+            </a>
+          </li>
+          <li>
+            <a class="account-link {% if section == 'orders' %}is-active{% endif %}"
+               {% if section == 'orders' %}aria-current="page"{% endif %} href="{% url 'orders:order_list' %}">
+              <i class="bi bi-receipt"></i> Orders
+            </a>
+          </li>
+          <li>
+            <a class="account-link" href="{% url 'menu:wishlist' %}">
+              <i class="bi bi-heart"></i> Wishlist
+            </a>
+          </li>
+          <li>
+            <a class="account-link {% if section == 'settings' %}is-active{% endif %}"
+               {% if section == 'settings' %}aria-current="page"{% endif %} href="{% url 'accounts:settings' %}">
+              <i class="bi bi-gear"></i> Settings
+            </a>
+          </li>
+          <li>
+            <form method="post" action="{% url 'accounts:logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="account-link account-logout"><i class="bi bi-box-arrow-right"></i> Log out</button>
+            </form>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Page content -->
+    <div class="col-lg-9">
+      {% block account_content %}{% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}

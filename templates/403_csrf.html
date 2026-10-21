@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Session expired | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/errors.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "partials/error_state.html" with code="403" icon="bi-clock-history" title="Session expired" message="For your safety this form expired before it was sent. Reload the page and try again." reload=True %}
+{% endblock %}

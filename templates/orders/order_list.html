@@ -1,0 +1,73 @@
+{% extends "accounts/account_base.html" %}
+
+{% block title %}My orders | Feastly{% endblock %}
+{% block account_title %}Orders{% endblock %}
+
+{% block account_content %}
+{% if orders %}
+
+  {% for order in orders %}
+    <article class="order-card">
+      <div class="order-card-head">
+        <div>
+          <h2 class="order-restaurant">{{ order.restaurant_name }}</h2>
+          <p class="order-meta">{{ order.order_number }} &middot; {{ order.created_at|date:"d M Y, g:i A" }}</p>
+        </div>
+        <span class="badge-soft
+          {% if order.status == 'preparing' %}badge-preparing
+          {% elif order.status == 'out_for_delivery' %}badge-out
+          {% elif order.status == 'delivered' %}badge-delivered
+          {% elif order.status == 'cancelled' %}badge-cancelled
+          {% else %}badge-placed{% endif %}">{{ order.get_status_display }}</span>
+      </div>
+
+      <p class="order-items">
+        {% for item in order.items.all|slice:":3" %}{{ item.quantity }}&times; {{ item.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if order.items.all|length > 3 %} +{{ order.items.all|length|add:"-3" }} more{% endif %}
+      </p>
+
+      <div class="order-card-foot">
+        <span class="order-total">₹{{ order.total|floatformat:"-2" }}</span>
+        <div class="order-actions">
+          <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-outline-ink btn-sm">View details</a>
+          <form method="post" action="{% url 'orders:reorder' order.order_number %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-accent btn-sm"><i class="bi bi-arrow-repeat me-1"></i>Reorder</button>
+          </form>
+        </div>
+      </div>
+    </article>
+  {% endfor %}
+
+  {% if is_paginated %}
+  <nav class="mt-4" aria-label="Order pages">
+    <ul class="pagination justify-content-center">
+      <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+        <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" aria-label="Previous page">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+      </li>
+      {% for number in paginator.page_range %}
+        <li class="page-item {% if number == page_obj.number %}active{% endif %}">
+          <a class="page-link" href="?page={{ number }}" {% if number == page_obj.number %}aria-current="page"{% endif %}>{{ number }}</a>
+        </li>
+      {% endfor %}
+      <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+        <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}" aria-label="Next page">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
+
+{% else %}
+  <div class="account-card">
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-receipt"></i></div>
+      <h2>No orders yet</h2>
+      <p>When you place an order, it will show up here so you can track it or order again.</p>
+      <a href="{% url 'home' %}#popular" class="btn btn-accent">Explore food</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

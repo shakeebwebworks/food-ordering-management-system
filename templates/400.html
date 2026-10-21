@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Something went wrong | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/errors.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "partials/error_state.html" with code="400" icon="bi-exclamation-triangle" title="Something went wrong" message="We could not understand that request. Please go back and try again." %}
+{% endblock %}

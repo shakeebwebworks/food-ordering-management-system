@@ -1,0 +1,118 @@
+{% extends "dashboard/layout.html" %}
+{% load dashboard_extras %}
+
+{% block title %}Order {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="dash-head">
+  <div>
+    <a href="{% url 'dashboard:orders_list' %}" class="back-link"><i class="bi bi-arrow-left"></i> Orders</a>
+    <h1 class="dash-title mt-2">Order {{ order.order_number }}</h1>
+    <p class="dash-sub">Placed {{ order.created_at|date:"d M Y, g:i A" }}</p>
+  </div>
+  <span class="badge-soft badge-lg {{ order.status|badge_class }}">{{ order.get_status_display }}</span>
+</div>
+
+<div class="row g-4">
+
+  <!-- Items, totals and history -->
+  <div class="col-lg-8">
+    <section class="dash-card dash-card-flush mb-4">
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr><th scope="col">Item</th><th scope="col">Options</th><th scope="col" class="text-end">Price</th><th scope="col" class="text-end">Qty</th><th scope="col" class="text-end">Total</th></tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td data-label="Item"><strong>{{ item.name }}</strong></td>
+                <td data-label="Options">{% if item.size_name %}{{ item.size_name }}{% endif %}{% for extra in item.extras %}{% if item.size_name or not forloop.first %} &middot; {% endif %}{{ extra }}{% endfor %}{% if not item.size_name and not item.extras %}&mdash;{% endif %}</td>
+                <td class="text-end" data-label="Price">₹{{ item.unit_price|floatformat:"-2" }}</td>
+                <td class="text-end" data-label="Qty">{{ item.quantity }}</td>
+                <td class="text-end" data-label="Total">₹{{ item.line_total|floatformat:"-2" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <dl class="summary-rows dash-totals">
+        <div class="summary-row"><dt>Subtotal</dt><dd>₹{{ order.subtotal|floatformat:"-2" }}</dd></div>
+        <div class="summary-row"><dt>Delivery fee</dt><dd>{% if order.delivery_fee %}₹{{ order.delivery_fee|floatformat:"-2" }}{% else %}Free{% endif %}</dd></div>
+        <div class="summary-row"><dt>Tax</dt><dd>₹{{ order.tax|floatformat:"-2" }}</dd></div>
+        {% if order.discount %}
+          <div class="summary-row summary-discount"><dt>Discount</dt><dd>-₹{{ order.discount|floatformat:"-2" }}</dd></div>
+        {% endif %}
+        <div class="summary-row summary-total"><dt>Total</dt><dd>₹{{ order.total|floatformat:"-2" }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="dash-card">
+      <h2 class="dash-card-title">Status history</h2>
+      <ol class="history">
+        {% for event in history %}
+          <li>
+            <span class="history-dot"></span>
+            <div>
+              <strong>{{ event.get_status_display }}</strong>
+              <span class="history-time">{{ event.created_at|date:"d M, g:i A" }}</span>
+              {% if event.note %}<p class="history-note">{{ event.note }}</p>{% endif %}
+            </div>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  </div>
+
+  <!-- Status, customer and payment -->
+  <div class="col-lg-4">
+    <section class="dash-card mb-4">
+      <h2 class="dash-card-title">Update status</h2>
+      <p class="dash-card-sub">The customer sees the change on their tracking page within seconds.</p>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.status.id_for_label }}">Status</label>
+          {{ form.status }}
+          {% for error in form.status.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label" for="{{ form.note.id_for_label }}">{{ form.note.label }}</label>
+          {{ form.note }}
+        </div>
+        <button type="submit" class="btn btn-accent w-100">Update status</button>
+      </form>
+    </section>
+
+    <section class="dash-card mb-4">
+      <h2 class="dash-card-title">Customer</h2>
+      <p class="mb-1"><strong>{{ order.contact_name }}</strong> &middot; {{ order.contact_phone }}</p>
+      {% if order.user %}<p class="small text-muted-soft mb-3">Account: {{ order.user.username }}{% if order.user.email %} &middot; {{ order.user.email }}{% endif %}</p>{% endif %}
+      <h3 class="detail-block-title">Delivering to</h3>
+      <p class="mb-0 text-muted-soft">{{ order.delivery_address }}</p>
+      {% if order.notes %}<p class="mt-2 mb-0 small"><i class="bi bi-chat-left-text"></i> {{ order.notes }}</p>{% endif %}
+    </section>
+
+    <section class="dash-card">
+      <h2 class="dash-card-title">Payment</h2>
+      {% for payment in payments %}
+        <div class="pay-row">
+          <div>
+            <strong>{{ payment.get_method_display }}</strong>
+            {% if payment.transaction_id %}<span class="small text-muted-soft d-block">{{ payment.transaction_id }}</span>{% endif %}
+          </div>
+          <div class="text-end">
+            <span class="badge-soft {{ payment.status|badge_class }}">{{ payment.get_status_display }}</span>
+            <span class="d-block small mt-1">₹{{ payment.amount|floatformat:"-2" }}</span>
+          </div>
+        </div>
+      {% empty %}
+        <p class="text-muted-soft mb-0">No payment recorded.</p>
+      {% endfor %}
+      <a href="{% url 'dashboard:payments_list' %}?q={{ order.order_number }}" class="btn btn-outline-ink btn-sm mt-3">Manage payments</a>
+    </section>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+/* ================= Account area ================= */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.back-link:hover { color: var(--color-accent); }
+
+/* ---------- Side menu ---------- */
+.account-nav {
+  padding: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+@media (min-width: 992px) {
+  .account-nav { position: sticky; top: 24px; }
+}
+
+.account-user {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.35rem 0.35rem 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px dashed var(--color-border);
+}
+.account-avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent);
+  font-weight: 800;
+  color: #fff;
+}
+.account-user-text { min-width: 0; line-height: 1.3; }
+.account-user-text strong,
+.account-user-text small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-user-text small { font-size: 0.78rem; color: var(--color-muted); }
+
+.account-menu { margin: 0; padding: 0; list-style: none; }
+.account-menu li + li { margin-top: 0.2rem; }
+.account-menu form { margin: 0; }
+
+.account-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.93rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+.account-link .bi { font-size: 1.05rem; }
+.account-link:hover { background: var(--color-bg); color: var(--color-ink); }
+.account-link.is-active { background: var(--color-accent-soft); color: var(--color-accent); }
+.account-logout:hover { background: #fdeaea; color: #b3261e; }
+
+/* On phones the menu becomes a row of pills you can swipe */
+@media (max-width: 991.98px) {
+  .account-user { display: none; }
+  .account-nav { padding: 0.5rem; }
+  .account-menu {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .account-menu::-webkit-scrollbar { display: none; }
+  .account-menu li + li { margin-top: 0; }
+  .account-menu li { flex: none; }
+  .account-link { width: auto; white-space: nowrap; padding: 0.6rem 0.9rem; }
+}
+
+/* ---------- Cards and forms ---------- */
+.account-card {
+  padding: 1.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.account-card-title { margin-bottom: 0.3rem; font-size: 1.2rem; letter-spacing: -0.02em; }
+.account-card-sub { margin-bottom: 1.5rem; font-size: 0.92rem; color: var(--color-muted); }
+.account-narrow { max-width: 420px; }
+
+.form-hint { margin-top: 0.4rem; font-size: 0.8rem; color: var(--color-muted); }
+.form-hint ul { margin: 0; padding-left: 1.1rem; }
+
+@media (max-width: 575.98px) {
+  .account-card { padding: 1.25rem; }
+}
+
+/* ---------- Saved addresses ---------- */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.address-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: box-shadow var(--dur) var(--ease),
+              transform var(--dur) var(--ease),
+              border-color var(--dur-fast) var(--ease);
+}
+.address-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+.address-card.is-default { border-color: var(--color-accent); }
+
+.address-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.address-label { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 800; color: var(--color-ink); }
+.address-label .bi { color: var(--color-accent); }
+
+.address-name { margin: 0 0 0.25rem; font-size: 0.9rem; font-weight: 700; color: var(--color-ink); }
+.address-text { margin: 0 0 1rem; font-size: 0.88rem; color: var(--color-muted); }
+
+.address-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--color-border);
+}
+.address-actions form { margin: 0; }
+
+.address-remove {
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #b3261e;
+}
+.address-remove:hover { background: #fdeaea; }
+
+/* ---------- Order history ---------- */
+.order-card {
+  padding: 1.25rem 1.4rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: box-shadow var(--dur) var(--ease);
+}
+.order-card:hover { box-shadow: var(--shadow-md); }
+.order-card + .order-card { margin-top: 0.9rem; }
+
+.order-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+.order-restaurant { margin: 0 0 0.15rem; font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; }
+.order-meta { margin: 0; font-size: 0.82rem; color: var(--color-muted); }
+
+.order-items { margin: 0.9rem 0 0; font-size: 0.9rem; color: var(--color-ink); }
+
+.order-card-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--color-border);
+}
+.order-total { font-size: 1.1rem; font-weight: 800; color: var(--color-accent); }
+.order-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.order-actions form { margin: 0; }

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Log in | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/auth.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-sub">Log in to order, track and save your favourites.</p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      {% if form.non_field_errors %}
+        <div class="auth-error" role="alert"><i class="bi bi-exclamation-circle"></i> {{ form.non_field_errors.0 }}</div>
+      {% endif %}
+
+      <div class="mb-3">
+        <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+        {{ form.username }}
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label" for="{{ form.password.id_for_label }}">Password</label>
+        {{ form.password }}
+      </div>
+
+      <button type="submit" class="btn btn-accent w-100 btn-lg">Log in</button>
+    </form>
+
+    <p class="auth-switch">New to Feastly? <a href="{% url 'accounts:register' %}">Create an account</a></p>
+  </div>
+</section>
+{% endblock %}

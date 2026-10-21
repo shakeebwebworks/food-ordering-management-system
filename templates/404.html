@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Page not found | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/errors.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "partials/error_state.html" with code="404" icon="bi-compass" title="Page not found" message="The page you are looking for does not exist, or it may have moved. Check the address, or head back to the menu." %}
+{% endblock %}

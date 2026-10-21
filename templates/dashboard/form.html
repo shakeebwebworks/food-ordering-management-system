@@ -1,0 +1,43 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} {{ resource.singular }}{% endblock %}
+
+{% block content %}
+<div class="dash-head">
+  <div>
+    <a href="{% url 'dashboard:'|add:resource.key|add:'_list' %}" class="back-link"><i class="bi bi-arrow-left"></i> {{ resource.plural }}</a>
+    <h1 class="dash-title mt-2">{% if object %}Edit{% else %}Add{% endif %} {{ resource.singular }}</h1>
+  </div>
+</div>
+
+<form method="post" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %} novalidate class="dash-card dash-form">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="checkout-error" role="alert"><i class="bi bi-exclamation-circle"></i> {{ form.non_field_errors.0 }}</div>
+  {% endif %}
+
+  <div class="row g-3">
+    {% for field in form %}
+      <div class="{% if field.name == 'description' or field.name == 'image' or field.name == 'cuisines' %}col-12{% else %}col-md-6{% endif %}">
+        {% if field.field.widget.input_type == "checkbox" %}
+          <div class="form-check mt-md-4">
+            {{ field }}
+            <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          </div>
+        {% else %}
+          <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+        {% endif %}
+        {% for error in field.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+        {% if field.help_text %}<div class="form-hint">{{ field.help_text }}</div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-4">
+    <button type="submit" class="btn btn-accent">{% if object %}Save changes{% else %}Add {{ resource.singular }}{% endif %}</button>
+    <a href="{% url 'dashboard:'|add:resource.key|add:'_list' %}" class="btn btn-outline-ink">Cancel</a>
+  </div>
+</form>
+{% endblock %}

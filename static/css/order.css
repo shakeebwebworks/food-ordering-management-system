@@ -1,0 +1,230 @@
+/* ================= Order confirmation and tracking ================= */
+
+/* ---------- "Thank you" banner ---------- */
+.placed-banner {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: #e6f6ec;
+  border: 1px solid #c9ead6;
+  border-radius: var(--radius-lg);
+  animation: page-in 600ms var(--ease) both;
+}
+
+.success-check { flex: none; width: 64px; height: 64px; }
+.success-check-ring {
+  stroke: #1f9d55;
+  stroke-width: 3;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: draw-line 700ms var(--ease) forwards;
+}
+.success-check-tick {
+  stroke: #1f9d55;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: draw-line 400ms var(--ease) 600ms forwards;
+}
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+
+/* ---------- Tracking card ---------- */
+.track-card {
+  padding: 1.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.track-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+.track-number {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+.track-title { margin: 0; font-size: 1.4rem; letter-spacing: -0.02em; }
+
+.track-eta,
+.track-cancelled {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.1rem 0 0;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.track-eta { background: var(--color-accent-soft); color: var(--color-accent); }
+.track-cancelled { background: #fdeaea; color: #b3261e; }
+
+/* ---------- The five steps (side by side on wide screens) ---------- */
+.track {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  margin: 2.25rem 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.track-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  text-align: center;
+}
+
+/* The line that joins the previous step to this one: grey track, orange fill */
+.track-step::before,
+.track-step::after {
+  content: "";
+  position: absolute;
+  top: 22px;
+  right: 50%;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+}
+.track-step:first-child::before,
+.track-step:first-child::after { display: none; }
+.track-step::before { background: var(--color-border); }
+.track-step::after {
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.track-step.is-done::after,
+.track-step.is-current::after {
+  transform: scaleX(1);
+  animation: track-fill-x 800ms var(--ease) both;
+}
+.track-step:nth-child(3)::after { animation-delay: 150ms; }
+.track-step:nth-child(4)::after { animation-delay: 300ms; }
+.track-step:nth-child(5)::after { animation-delay: 450ms; }
+
+@keyframes track-fill-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes track-fill-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.track-dot {
+  position: relative;
+  z-index: 1;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  font-size: 1.2rem;
+  color: var(--color-muted);
+  transition: background-color var(--dur) var(--ease),
+              border-color var(--dur) var(--ease),
+              color var(--dur) var(--ease);
+}
+.track-tick { display: none; }
+
+/* Done: solid orange with a tick */
+.track-step.is-done .track-dot {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+.track-step.is-done .track-dot > i:not(.track-tick) { display: none; }
+.track-step.is-done .track-tick { display: block; animation: heart-pop 450ms var(--ease); }
+
+/* Current: orange outline and a soft pulse */
+.track-step.is-current .track-dot {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.track-step.is-current .track-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  opacity: 0;
+  animation: track-pulse 1.8s ease-out infinite;
+}
+@keyframes track-pulse {
+  0%   { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+.track-text { display: flex; flex-direction: column; gap: 0.15rem; }
+.track-label { font-size: 0.85rem; font-weight: 700; line-height: 1.25; color: var(--color-ink); }
+.track-time { font-size: 0.78rem; font-weight: 600; color: var(--color-muted); }
+.track-time:empty { display: none; }
+.track-step.is-pending .track-label { color: var(--color-muted); font-weight: 600; }
+
+/* ---------- Narrow screens: the steps stack top to bottom ---------- */
+@media (max-width: 767.98px) {
+  .track {
+    --step-h: 78px;
+    grid-template-columns: 1fr;
+    margin-top: 1.75rem;
+  }
+  .track-step {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+    height: var(--step-h);
+    text-align: left;
+  }
+  .track-step:last-child { height: auto; }
+
+  .track-step::before,
+  .track-step::after {
+    top: calc(24px - var(--step-h));
+    right: auto;
+    left: 22px;
+    width: 3px;
+    height: var(--step-h);
+  }
+  .track-step::after { transform: scaleY(0); transform-origin: top; }
+  .track-step.is-done::after,
+  .track-step.is-current::after {
+    transform: scaleY(1);
+    animation-name: track-fill-y;
+  }
+
+  .track-text { padding-top: 0.55rem; }
+}
+
+/* ---------- Order details ---------- */
+.detail-block {
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px dashed var(--color-border);
+  font-size: 0.92rem;
+}
+.detail-block-title {
+  margin-bottom: 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@media (max-width: 575.98px) {
+  .placed-banner { flex-direction: column; align-items: flex-start; }
+  .track-card { padding: 1.25rem; }
+}

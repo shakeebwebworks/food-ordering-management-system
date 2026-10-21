@@ -1,0 +1,32 @@
+{% if categories %}
+<section class="container py-4" id="categories" aria-labelledby="categories-title" style="scroll-margin-top: 80px">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+      <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">Categories</p>
+      <h2 class="h2 mb-0" id="categories-title">What are you craving?</h2>
+    </div>
+  </div>
+
+  <div class="category-row" role="group" aria-label="Filter foods by category">
+
+    <button type="button" class="category-card is-active" data-category-filter="all" aria-pressed="true">
+      <span class="category-card-media"><i class="bi bi-grid-fill"></i></span>
+      <span class="category-card-name">All</span>
+    </button>
+
+    {% for category in categories %}
+      <button type="button" class="category-card" data-category-filter="{{ category.slug }}" aria-pressed="false">
+        <span class="category-card-media">
+          {% if category.image %}
+            <img src="{{ category.image.url }}" alt="" loading="lazy">
+          {% else %}
+            <i class="bi {{ category.icon|default:'bi-egg-fried' }}"></i>
+          {% endif %}
+        </span>
+        <span class="category-card-name">{{ category.name }}</span>
+      </button>
+    {% endfor %}
+
+  </div>
+</section>
+{% endif %}

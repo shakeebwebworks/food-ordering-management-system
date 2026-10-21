@@ -1,0 +1,54 @@
+<footer class="site-footer">
+  <div class="container">
+    <div class="row g-5">
+
+      <div class="col-lg-4">
+        <a class="brand brand-light" href="{% url 'home' %}">
+          <span class="brand-mark"><i class="bi bi-lightning-charge-fill"></i></span>
+          Feastly
+        </a>
+        <p class="footer-text mt-3">
+          Fresh meals from the best local kitchens, delivered fast and handled with care.
+        </p>
+        <div class="d-flex gap-2 mt-4">
+          <a class="footer-social" href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+          <a class="footer-social" href="#" aria-label="X (Twitter)"><i class="bi bi-twitter-x"></i></a>
+          <a class="footer-social" href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+          <a class="footer-social" href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h2 class="footer-heading">Company</h2>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-6 col-lg-2">
+        <h2 class="footer-heading">Support</h2>
+        <ul class="footer-links list-unstyled">
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-4">
+        <h2 class="footer-heading">Our platform</h2>
+        <p class="footer-text">Order on the web today. Mobile apps are on the way.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="platform-chip"><i class="bi bi-apple"></i> App Store</span>
+          <span class="platform-chip"><i class="bi bi-google-play"></i> Google Play</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; {% now "Y" %} Feastly. All rights reserved.</span>
+      <span>Made with care, for people who love good food.</span>
+    </div>
+  </div>
+</footer>

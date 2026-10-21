@@ -1,0 +1,101 @@
+<section class="container py-5" id="restaurants" aria-labelledby="restaurants-title" style="scroll-margin-top: 80px">
+
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+      <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">Restaurants</p>
+      <h2 class="h2 mb-0" id="restaurants-title">Kitchens near you</h2>
+    </div>
+    <p class="text-muted-soft small mb-0" id="restaurantCount" aria-live="polite">
+      {{ restaurants|length }} restaurant{{ restaurants|length|pluralize }}
+    </p>
+  </div>
+
+  {% if restaurants %}
+
+  <!-- Filters -->
+  <div class="filter-bar mb-4" role="group" aria-label="Filter restaurants">
+    <div class="filter-field">
+      <label class="visually-hidden" for="filterCuisine">Cuisine</label>
+      <select class="form-select" id="filterCuisine" data-restaurant-filter="cuisine">
+        <option value="">All cuisines</option>
+        {% for cuisine in cuisines %}
+          <option value="{{ cuisine.slug }}">{{ cuisine.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label class="visually-hidden" for="filterRating">Rating</label>
+      <select class="form-select" id="filterRating" data-restaurant-filter="rating">
+        <option value="">Any rating</option>
+        <option value="3.5">3.5 and above</option>
+        <option value="4">4.0 and above</option>
+        <option value="4.5">4.5 and above</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label class="visually-hidden" for="filterTime">Delivery time</label>
+      <select class="form-select" id="filterTime" data-restaurant-filter="time">
+        <option value="">Any delivery time</option>
+        <option value="30">Up to 30 min</option>
+        <option value="45">Up to 45 min</option>
+        <option value="60">Up to 60 min</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label class="visually-hidden" for="filterPrice">Price range</label>
+      <select class="form-select" id="filterPrice" data-restaurant-filter="price">
+        <option value="">Any price</option>
+        <option value="1">₹ Budget</option>
+        <option value="2">₹₹ Moderate</option>
+        <option value="3">₹₹₹ Premium</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label class="visually-hidden" for="filterDiet">Diet</label>
+      <select class="form-select" id="filterDiet" data-restaurant-filter="diet">
+        <option value="">Veg and non-veg</option>
+        <option value="veg">Veg only</option>
+        <option value="nonveg">Serves non-veg</option>
+      </select>
+    </div>
+
+    <button type="button" class="btn btn-outline-ink btn-sm filter-reset" data-filter-reset>
+      <i class="bi bi-x-lg me-1"></i>Reset
+    </button>
+  </div>
+
+  <!-- Restaurant cards -->
+  <div class="row g-4" id="restaurantGrid">
+    {% for restaurant in restaurants %}
+      <div class="col-12 col-md-6 col-lg-4 restaurant-col reveal"
+           style="--reveal-delay: {% widthratio forloop.counter0 1 90 %}ms">
+        {% include "partials/restaurant_card.html" with restaurant=restaurant %}
+      </div>
+    {% endfor %}
+
+    <!-- Shown by JavaScript when no restaurant matches the filters -->
+    <div class="col-12" id="restaurantEmpty" hidden>
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+        <h3>No restaurants match</h3>
+        <p>Try changing or clearing your filters.</p>
+        <button type="button" class="btn btn-accent" data-filter-reset>Clear filters</button>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi bi-shop"></i></div>
+    <h3>No restaurants yet</h3>
+    <p>Add a restaurant in the admin and refresh this page.</p>
+    <a href="{% url 'admin:restaurants_restaurant_add' %}" class="btn btn-accent">Add restaurant</a>
+  </div>
+
+  {% endif %}
+</section>

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}My wishlist | Feastly{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+      <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">Saved for later</p>
+      <h1 class="h2 mb-0">My wishlist</h1>
+    </div>
+    {% if paginator.count %}
+      <p class="text-muted-soft small mb-0">{{ paginator.count }} item{{ paginator.count|pluralize }}</p>
+    {% endif %}
+  </div>
+
+  {% if foods %}
+    <div class="row g-4">
+      {% for food in foods %}
+        <div class="col-12 col-sm-6 col-lg-4">
+          {% include "partials/food_card.html" with food=food %}
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-5" aria-label="Wishlist pages">
+      <ul class="pagination justify-content-center">
+        <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+          <a class="page-link" href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" aria-label="Previous page">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+        </li>
+        {% for number in paginator.page_range %}
+          <li class="page-item {% if number == page_obj.number %}active{% endif %}">
+            <a class="page-link" href="?page={{ number }}" {% if number == page_obj.number %}aria-current="page"{% endif %}>{{ number }}</a>
+          </li>
+        {% endfor %}
+        <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+          <a class="page-link" href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}" aria-label="Next page">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-heart"></i></div>
+      <h2>Your wishlist is empty</h2>
+      <p>Tap the heart on any food to save it here for later.</p>
+      <a href="{% url 'home' %}#popular" class="btn btn-accent">Explore food</a>
+    </div>
+  {% endif %}
+
+</section>
+{% endblock %}

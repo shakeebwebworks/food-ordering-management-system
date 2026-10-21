@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/food.css' %}" rel="stylesheet">
+<link href="{% static 'css/cart.css' %}" rel="stylesheet">
+<link href="{% static 'css/checkout.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+  <div class="mb-4">
+    <a href="{% url 'orders:cart' %}" class="back-link"><i class="bi bi-arrow-left"></i> Back to cart</a>
+    <h1 class="h2 mt-2 mb-0">Checkout</h1>
+  </div>
+
+  <form method="post" id="checkoutForm" novalidate>
+    {% csrf_token %}
+
+    <div class="row g-4 g-lg-5">
+
+      <!-- Left: address and payment -->
+      <div class="col-lg-7 col-xl-8">
+
+        {% if form.non_field_errors %}
+          <div class="checkout-error" role="alert">
+            <i class="bi bi-exclamation-circle"></i> {{ form.non_field_errors.0 }}
+          </div>
+        {% endif %}
+
+        <!-- 1. Delivery address and contact -->
+        <section class="step-card" aria-labelledby="step-address">
+          <h2 class="step-title" id="step-address"><span class="step-no">1</span> Delivery address</h2>
+
+          {% if saved_addresses %}
+          <div class="choice-grid mb-3">
+            {% for address in saved_addresses %}
+              <label class="choice-card">
+                <input type="radio" name="saved_address" value="{{ address.pk }}"
+                       {% if selected_address == address.pk|stringformat:"s" %}checked{% endif %} data-address-choice>
+                <span class="choice-body">
+                  <span class="choice-top">
+                    <strong>{{ address.get_label_display }}</strong>
+                    {% if address.is_default %}<span class="badge-soft badge-placed">Default</span>{% endif %}
+                  </span>
+                  <span class="choice-name">{{ address.recipient_name }} &middot; {{ address.phone }}</span>
+                  <span class="choice-text">{{ address.full_address }}</span>
+                </span>
+              </label>
+            {% endfor %}
+            <label class="choice-card">
+              <input type="radio" name="saved_address" value="" {% if not selected_address %}checked{% endif %} data-address-choice>
+              <span class="choice-body choice-new">
+                <i class="bi bi-plus-circle"></i>
+                <strong>Use a new address</strong>
+              </span>
+            </label>
+          </div>
+          {% endif %}
+
+          {% if form.saved_address.errors %}
+            <div class="invalid-feedback d-block mb-2">{{ form.saved_address.errors.0 }}</div>
+          {% endif %}
+
+          <div id="newAddress" data-new-address {% if selected_address %}hidden{% endif %}>
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.contact_name.id_for_label }}">{{ form.contact_name.label }}</label>
+                {{ form.contact_name }}
+                {% for error in form.contact_name.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label" for="{{ form.contact_phone.id_for_label }}">{{ form.contact_phone.label }}</label>
+                {{ form.contact_phone }}
+                {% for error in form.contact_phone.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="{{ form.line1.id_for_label }}">{{ form.line1.label }}</label>
+                {{ form.line1 }}
+                {% for error in form.line1.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="{{ form.line2.id_for_label }}">{{ form.line2.label }}</label>
+                {{ form.line2 }}
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="{{ form.landmark.id_for_label }}">{{ form.landmark.label }}</label>
+                {{ form.landmark }}
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label" for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                {{ form.city }}
+                {% for error in form.city.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label" for="{{ form.state.id_for_label }}">{{ form.state.label }}</label>
+                {{ form.state }}
+                {% for error in form.state.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-sm-4">
+                <label class="form-label" for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+                {{ form.postal_code }}
+                {% for error in form.postal_code.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  {{ form.save_address }}
+                  <label class="form-check-label" for="{{ form.save_address.id_for_label }}">{{ form.save_address.label }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <label class="form-label" for="{{ form.notes.id_for_label }}">{{ form.notes.label }}</label>
+            {{ form.notes }}
+          </div>
+        </section>
+
+        <!-- 2. Payment method -->
+        <section class="step-card" aria-labelledby="step-payment">
+          <h2 class="step-title" id="step-payment"><span class="step-no">2</span> Payment method</h2>
+
+          <div class="choice-grid">
+            {% for value, label in form.fields.payment_method.choices %}
+              <label class="choice-card">
+                <input type="radio" name="payment_method" value="{{ value }}" {% if selected_payment == value %}checked{% endif %}>
+                <span class="choice-body choice-pay">
+                  <span class="choice-icon">
+                    {% if value == "cod" %}<i class="bi bi-cash-coin"></i>
+                    {% elif value == "card" %}<i class="bi bi-credit-card"></i>
+                    {% elif value == "upi" %}<i class="bi bi-phone"></i>
+                    {% else %}<i class="bi bi-bank"></i>{% endif %}
+                  </span>
+                  <span>
+                    <strong>{{ label }}</strong>
+                    <span class="choice-text">
+                      {% if value == "cod" %}Pay when your order arrives
+                      {% elif value == "card" %}Credit or debit card
+                      {% elif value == "upi" %}Pay with any UPI app
+                      {% else %}Pay from your bank account{% endif %}
+                    </span>
+                  </span>
+                </span>
+              </label>
+            {% endfor %}
+          </div>
+          {% for error in form.payment_method.errors %}<div class="invalid-feedback d-block mt-2">{{ error }}</div>{% endfor %}
+
+          <p class="demo-note"><i class="bi bi-info-circle"></i> Demo mode: no real payment is taken for card, UPI or net banking.</p>
+        </section>
+      </div>
+
+      <!-- Right: order summary -->
+      <aside class="col-lg-5 col-xl-4" aria-label="Order summary">
+        <div class="summary-card">
+          <h2 class="summary-title"><span class="step-no">3</span> Order summary</h2>
+          <p class="cart-from mb-3">
+            <i class="bi bi-shop"></i> <strong>{{ summary.restaurant.name }}</strong>
+            <span class="dot-sep" aria-hidden="true"></span>
+            <i class="bi bi-clock"></i> {{ summary.restaurant.delivery_time_minutes }} min
+          </p>
+
+          <ul class="mini-items">
+            {% for item in items %}
+              <li>
+                <span class="mini-qty">{{ item.quantity }}&times;</span>
+                <span class="mini-name">
+                  {{ item.food_item.name }}
+                  <small>{% if item.size %}{{ item.size.name }}{% endif %}{% for extra in item.extras.all %}{% if item.size or not forloop.first %} &middot; {% endif %}{{ extra.name }}{% endfor %}</small>
+                </span>
+                <span class="mini-total">₹{{ item.line_total|floatformat:"-2" }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+
+          <dl class="summary-rows">
+            <div class="summary-row"><dt>Subtotal</dt><dd>₹{{ summary.subtotal|floatformat:"-2" }}</dd></div>
+            <div class="summary-row">
+              <dt>Delivery fee</dt>
+              <dd>{% if summary.delivery_fee %}₹{{ summary.delivery_fee|floatformat:"-2" }}{% else %}Free{% endif %}</dd>
+            </div>
+            <div class="summary-row"><dt>Tax</dt><dd>₹{{ summary.tax|floatformat:"-2" }}</dd></div>
+            {% if summary.discount %}
+              <div class="summary-row summary-discount"><dt>Discount</dt><dd>-₹{{ summary.discount|floatformat:"-2" }}</dd></div>
+            {% endif %}
+            <div class="summary-row summary-total"><dt>Total</dt><dd>₹{{ summary.total|floatformat:"-2" }}</dd></div>
+          </dl>
+
+          <button type="submit" class="btn btn-accent btn-lg w-100" id="placeOrderBtn">
+            <span class="btn-label"><i class="bi bi-lock me-2"></i>Place order &middot; ₹{{ summary.total|floatformat:"-2" }}</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="secure-note"><i class="bi bi-shield-check"></i> Your details are sent securely.</p>
+        </div>
+      </aside>
+    </div>
+  </form>
+
+  <!-- Sticky bar for phones -->
+  <div class="mobile-cta d-lg-none">
+    <div>
+      <span class="mobile-cta-label">Total</span>
+      <strong>₹{{ summary.total|floatformat:"-2" }}</strong>
+    </div>
+    <button type="submit" form="checkoutForm" class="btn btn-accent">Place order</button>
+  </div>
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/checkout.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Feastly | Good food. Delivered beautifully.{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/home.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+{% include "home/hero.html" %}
+
+{% include "home/categories.html" %}
+
+<!-- Popular foods -->
+<section class="container py-5" id="popular" style="scroll-margin-top: 80px">
+  <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+    <div>
+      <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">Popular foods</p>
+      <h2 class="h2 mb-0">Popular right now</h2>
+    </div>
+    <a href="#" class="btn btn-outline-ink btn-sm">View all <i class="bi bi-arrow-right ms-1"></i></a>
+  </div>
+
+  <div class="row g-4" id="foodGrid">
+    {% for food in foods %}
+      <div class="col-12 col-sm-6 col-lg-4 reveal" data-category="{{ food.category.slug }}"
+           style="--reveal-delay: {% widthratio forloop.counter0 1 90 %}ms">
+        {% include "partials/food_card.html" with food=food %}
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <div class="empty-state">
+          <div class="empty-state-icon"><i class="bi bi-egg-fried"></i></div>
+          <h3>No food yet</h3>
+          <p>Add a few food items in the admin and refresh this page.</p>
+          <a href="{% url 'admin:menu_fooditem_add' %}" class="btn btn-accent">Add food item</a>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Shown by JavaScript when a category has no food -->
+    <div class="col-12" id="filterEmpty" hidden>
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-search"></i></div>
+        <h3>Nothing here yet</h3>
+        <p>There is no food in this category right now. Try another one.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% include "home/restaurants.html" %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}" defer></script>
+{% endblock %}

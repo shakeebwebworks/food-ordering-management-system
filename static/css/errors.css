@@ -1,0 +1,27 @@
+/* ================= Error pages ================= */
+.error-page {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  padding: 3rem 1rem;
+}
+
+.error-card {
+  max-width: 520px;
+  text-align: center;
+  animation: page-in 600ms var(--ease) both;
+}
+
+.error-code {
+  margin: 0 0 -1.5rem;
+  font-size: clamp(5rem, 18vw, 9rem);
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: #f1d9d1;
+  user-select: none;
+}
+
+.error-card .empty-state-icon { position: relative; }
+.error-card h1 { margin-bottom: 0.6rem; font-size: 1.9rem; letter-spacing: -0.03em; }
+.error-text { margin-bottom: 1.75rem; color: var(--color-muted); }

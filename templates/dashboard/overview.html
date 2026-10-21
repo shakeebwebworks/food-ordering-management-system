@@ -1,0 +1,151 @@
+{% extends "dashboard/layout.html" %}
+{% load static dashboard_extras %}
+
+{% block title %}Overview{% endblock %}
+
+{% block content %}
+<div class="dash-head">
+  <div>
+    <h1 class="dash-title">Overview</h1>
+    <p class="dash-sub">How the business is doing.</p>
+  </div>
+  <div class="range-switch" role="group" aria-label="Time range for the charts">
+    <button type="button" class="range-btn" data-days="7">7 days</button>
+    <button type="button" class="range-btn is-active" data-days="30" aria-pressed="true">30 days</button>
+    <button type="button" class="range-btn" data-days="90">90 days</button>
+  </div>
+</div>
+
+<div id="dashError" class="checkout-error" role="alert" hidden>
+  <i class="bi bi-exclamation-circle"></i> The numbers could not be loaded. Check your connection and reload the page.
+</div>
+
+<!-- Key numbers -->
+<section class="stat-grid" aria-label="Key numbers">
+  <article class="stat-card">
+    <span class="stat-icon"><i class="bi bi-currency-rupee"></i></span>
+    <div>
+      <p class="stat-label">Total revenue</p>
+      <p class="stat-value" data-stat="revenue" data-kind="money"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+  <article class="stat-card">
+    <span class="stat-icon"><i class="bi bi-receipt"></i></span>
+    <div>
+      <p class="stat-label">Total orders</p>
+      <p class="stat-value" data-stat="orders"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+  <article class="stat-card">
+    <span class="stat-icon"><i class="bi bi-people"></i></span>
+    <div>
+      <p class="stat-label">Customers</p>
+      <p class="stat-value" data-stat="customers"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+  <article class="stat-card">
+    <span class="stat-icon"><i class="bi bi-shop"></i></span>
+    <div>
+      <p class="stat-label">Restaurants</p>
+      <p class="stat-value" data-stat="restaurants"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+  <article class="stat-card">
+    <span class="stat-icon"><i class="bi bi-egg-fried"></i></span>
+    <div>
+      <p class="stat-label">Products</p>
+      <p class="stat-value" data-stat="products"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+  <article class="stat-card stat-alert">
+    <span class="stat-icon"><i class="bi bi-hourglass-split"></i></span>
+    <div>
+      <p class="stat-label">Pending orders</p>
+      <p class="stat-value" data-stat="pending_orders"><span class="skeleton skeleton-stat"></span></p>
+    </div>
+  </article>
+</section>
+
+<!-- Charts -->
+<section class="chart-grid" id="dashCharts" data-api="{% url 'dashboard' %}" aria-label="Charts">
+  <article class="chart-card">
+    <div class="chart-head"><h2>Revenue</h2><span class="chart-note">Per day</span></div>
+    <div class="chart-body">
+      <canvas id="chartRevenue" role="img" aria-label="Revenue over time"></canvas>
+      <p class="chart-empty" hidden>No data for this period.</p>
+    </div>
+  </article>
+  <article class="chart-card">
+    <div class="chart-head"><h2>Orders</h2><span class="chart-note">Per day</span></div>
+    <div class="chart-body">
+      <canvas id="chartOrders" role="img" aria-label="Orders over time"></canvas>
+      <p class="chart-empty" hidden>No data for this period.</p>
+    </div>
+  </article>
+  <article class="chart-card">
+    <div class="chart-head"><h2>Most popular foods</h2><span class="chart-note">Units sold</span></div>
+    <div class="chart-body">
+      <canvas id="chartPopular" role="img" aria-label="Most popular foods"></canvas>
+      <p class="chart-empty" hidden>No sales yet.</p>
+    </div>
+  </article>
+  <article class="chart-card">
+    <div class="chart-head"><h2>Orders by category</h2><span class="chart-note">Units sold</span></div>
+    <div class="chart-body">
+      <canvas id="chartCategory" role="img" aria-label="Orders by category"></canvas>
+      <p class="chart-empty" hidden>No sales yet.</p>
+    </div>
+  </article>
+  <article class="chart-card">
+    <div class="chart-head"><h2>Customer growth</h2><span class="chart-note">Total customers</span></div>
+    <div class="chart-body">
+      <canvas id="chartGrowth" role="img" aria-label="Customer growth"></canvas>
+      <p class="chart-empty" hidden>No customers yet.</p>
+    </div>
+  </article>
+  <article class="chart-card">
+    <div class="chart-head"><h2>Order status</h2><span class="chart-note">All orders</span></div>
+    <div class="chart-body">
+      <canvas id="chartStatus" role="img" aria-label="Order status distribution"></canvas>
+      <p class="chart-empty" hidden>No orders yet.</p>
+    </div>
+  </article>
+</section>
+
+<!-- Recent orders -->
+<section class="dash-card dash-card-flush mt-4">
+  <div class="dash-card-bar">
+    <h2 class="dash-card-title mb-0">Recent orders</h2>
+    <a href="{% url 'dashboard:orders_list' %}" class="btn btn-outline-ink btn-sm">View all</a>
+  </div>
+  {% if recent_orders %}
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Total</th><th scope="col">Status</th><th scope="col">Placed</th></tr></thead>
+        <tbody>
+          {% for order in recent_orders %}
+            <tr>
+              <td data-label="Order"><a class="dash-cell-link" href="{% url 'dashboard:order_detail' order.order_number %}">{{ order.order_number }}</a></td>
+              <td data-label="Customer">{{ order.user.username|default:"&mdash;" }}</td>
+              <td data-label="Total">₹{{ order.total|floatformat:"-2" }}</td>
+              <td data-label="Status"><span class="badge-soft {{ order.status|badge_class }}">{{ order.get_status_display }}</span></td>
+              <td data-label="Placed">{{ order.created_at|date:"d M, g:i A" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-receipt"></i></div>
+      <h2>No orders yet</h2>
+      <p>New orders will show up here.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}" defer></script>
+{% endblock %}

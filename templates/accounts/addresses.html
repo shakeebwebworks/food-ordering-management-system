@@ -1,0 +1,57 @@
+{% extends "accounts/account_base.html" %}
+
+{% block title %}My addresses | Feastly{% endblock %}
+{% block account_title %}Addresses{% endblock %}
+
+{% block account_content %}
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+  <p class="text-muted-soft mb-0">Saved places we can deliver to.</p>
+  <a href="{% url 'accounts:address_add' %}" class="btn btn-accent btn-sm"><i class="bi bi-plus-lg me-1"></i>Add address</a>
+</div>
+
+{% if addresses %}
+  <div class="address-grid">
+    {% for address in addresses %}
+      <article class="address-card {% if address.is_default %}is-default{% endif %}">
+        <div class="address-card-top">
+          <span class="address-label">
+            <i class="bi {% if address.label == 'home' %}bi-house{% elif address.label == 'work' %}bi-briefcase{% else %}bi-geo-alt{% endif %}"></i>
+            {{ address.get_label_display }}
+          </span>
+          {% if address.is_default %}<span class="badge-soft badge-delivered">Default</span>{% endif %}
+        </div>
+
+        <p class="address-name">{{ address.recipient_name }} &middot; {{ address.phone }}</p>
+        <p class="address-text">{{ address.full_address }}</p>
+
+        <div class="address-actions">
+          <a href="{% url 'accounts:address_edit' address.pk %}" class="btn btn-outline-ink btn-sm">Edit</a>
+
+          {% if not address.is_default %}
+            <form method="post" action="{% url 'accounts:address_default' address.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-outline-ink btn-sm">Make default</button>
+            </form>
+          {% endif %}
+
+          <form method="post" action="{% url 'accounts:address_delete' address.pk %}"
+                data-confirm="This address will be removed from your account."
+                data-confirm-title="Remove this address?" data-confirm-label="Remove">
+            {% csrf_token %}
+            <button type="submit" class="address-remove">Remove</button>
+          </form>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="account-card">
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-geo-alt"></i></div>
+      <h2>No saved addresses</h2>
+      <p>Save an address once and pick it in a tap at checkout.</p>
+      <a href="{% url 'accounts:address_add' %}" class="btn btn-accent">Add your first address</a>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

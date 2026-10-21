@@ -1,0 +1,158 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}{{ resource.plural }}{% endblock %}
+
+{% block content %}
+<div class="dash-head">
+  <div>
+    <h1 class="dash-title">{{ resource.plural }}</h1>
+    <p class="dash-sub">{{ page_obj.paginator.count }} total</p>
+  </div>
+  {% if resource.has_form %}
+    <a href="{% url 'dashboard:'|add:resource.key|add:'_add' %}" class="btn btn-accent btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>Add {{ resource.singular }}
+    </a>
+  {% endif %}
+</div>
+
+<!-- Search and filters -->
+<form method="get" class="dash-toolbar" role="search">
+  {% if resource.search_fields %}
+    <div class="search-bar dash-search">
+      <i class="bi bi-search" aria-hidden="true"></i>
+      <label class="visually-hidden" for="dashSearch">{{ resource.search_hint }}</label>
+      <input type="search" id="dashSearch" name="q" value="{{ query }}" placeholder="{{ resource.search_hint }}" autocomplete="off">
+    </div>
+  {% endif %}
+
+  {% for option in filters %}
+    <div>
+      <label class="visually-hidden" for="filter-{{ option.param }}">{{ option.label }}</label>
+      <select class="form-select dash-filter {% if option.selected %}is-filtered{% endif %}" id="filter-{{ option.param }}"
+              name="{{ option.param }}" onchange="this.form.submit()">
+        <option value="">{{ option.label }}</option>
+        {% for value, label in option.choices %}
+          <option value="{{ value }}" {% if value == option.selected %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-ink btn-sm">Search</button>
+  {% if has_filters %}
+    <a href="{% url 'dashboard:'|add:resource.key|add:'_list' %}" class="btn btn-outline-ink btn-sm">Clear</a>
+  {% endif %}
+</form>
+
+{% if rows %}
+<div class="dash-card dash-card-flush">
+  <div class="dash-table-wrap">
+    <table class="dash-table">
+      <thead>
+        <tr>
+          {% for column in resource.columns %}<th scope="col">{{ column.label }}</th>{% endfor %}
+          <th scope="col" class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% load dashboard_extras %}
+        {% for row in rows %}
+          <tr>
+            {% for column in resource.columns %}
+              {% with value=row.obj|cell:column.key %}
+              <td data-label="{{ column.label }}">
+                {% if column.kind == "link" %}
+                  {% if resource.detail_url %}
+                    <a class="dash-cell-link" href="{% url resource.detail_url row.obj.order_number %}">{{ value }}</a>
+                  {% elif resource.has_form %}
+                    <a class="dash-cell-link" href="{% url 'dashboard:'|add:resource.key|add:'_edit' row.obj.pk %}">{{ value }}</a>
+                  {% else %}{{ value }}{% endif %}
+                {% elif column.kind == "bool" %}
+                  <span class="yes-no {% if value %}is-yes{% endif %}">{% if value %}Yes{% else %}No{% endif %}</span>
+                {% elif column.kind == "money" %}
+                  {% if value is None %}&mdash;{% else %}₹{{ value|floatformat:"-2" }}{% endif %}
+                {% elif column.kind == "date" %}{{ value|date:"d M Y" }}
+                {% elif column.kind == "datetime" %}{{ value|date:"d M Y, g:i A" }}
+                {% elif column.kind == "badge" %}
+                  <span class="badge-soft {{ row.obj|cell:column.badge_key|badge_class }}">{{ value }}</span>
+                {% elif column.kind == "rating" %}
+                  <span class="rating-cell"><i class="bi bi-star-fill"></i> {{ value|floatformat:"-1" }}</span>
+                {% elif column.kind == "minutes" %}{{ value }} min
+                {% elif column.kind == "text" %}{{ value|truncatechars:60|default:"&mdash;" }}
+                {% else %}{{ value|default_if_none:"&mdash;" }}{% endif %}
+              </td>
+              {% endwith %}
+            {% endfor %}
+
+            <td class="text-end" data-label="Actions">
+              <div class="row-actions">
+                {% if resource.detail_url %}
+                  <a href="{% url resource.detail_url row.obj.order_number %}" class="btn btn-outline-ink btn-sm">View</a>
+                {% elif resource.has_form %}
+                  <a href="{% url 'dashboard:'|add:resource.key|add:'_edit' row.obj.pk %}" class="btn btn-outline-ink btn-sm">Edit</a>
+                {% endif %}
+
+                {% for action in row.actions %}
+                  <form method="post" action="{% url 'dashboard:action' resource.key row.obj.pk action.name %}"
+                        {% if action.confirm %}data-confirm="{{ action.confirm }}" data-confirm-title="{{ action.label }}?" data-confirm-label="{{ action.label }}"{% endif %}>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm {% if action.danger %}btn-outline-danger{% else %}btn-outline-ink{% endif %}">{{ action.label }}</button>
+                  </form>
+                {% endfor %}
+
+                {% if resource.deletable %}
+                  <form method="post" action="{% url 'dashboard:delete' resource.key row.obj.pk %}"
+                        data-confirm="This cannot be undone." data-confirm-title="Delete this {{ resource.singular }}?" data-confirm-label="Delete">
+                    {% csrf_token %}
+                    <button type="submit" class="icon-action" aria-label="Delete"><i class="bi bi-trash3"></i></button>
+                  </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if is_paginated %}
+<nav class="mt-4" aria-label="Pages">
+  <ul class="pagination justify-content-center">
+    <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+      <a class="page-link" aria-label="Previous page"
+         href="{% if page_obj.has_previous %}?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}"><i class="bi bi-chevron-left"></i></a>
+    </li>
+    {% for number in paginator.page_range %}
+      <li class="page-item {% if number == page_obj.number %}active{% endif %}">
+        <a class="page-link" href="?{% if query_string %}{{ query_string }}&{% endif %}page={{ number }}"
+           {% if number == page_obj.number %}aria-current="page"{% endif %}>{{ number }}</a>
+      </li>
+    {% endfor %}
+    <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+      <a class="page-link" aria-label="Next page"
+         href="{% if page_obj.has_next %}?{% if query_string %}{{ query_string }}&{% endif %}page={{ page_obj.next_page_number }}{% else %}#{% endif %}"><i class="bi bi-chevron-right"></i></a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="dash-card">
+  <div class="empty-state">
+    <div class="empty-state-icon"><i class="bi {{ resource.icon }}"></i></div>
+    {% if has_filters %}
+      <h2>Nothing matches</h2>
+      <p>Try a different search or clear the filters.</p>
+      <a href="{% url 'dashboard:'|add:resource.key|add:'_list' %}" class="btn btn-accent">Clear filters</a>
+    {% else %}
+      <h2>No {{ resource.plural|lower }} yet</h2>
+      <p>They will show up here as soon as there are some.</p>
+      {% if resource.has_form %}
+        <a href="{% url 'dashboard:'|add:resource.key|add:'_add' %}" class="btn btn-accent">Add {{ resource.singular }}</a>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Access denied | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/errors.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% include "partials/error_state.html" with code="403" icon="bi-shield-lock" title="Access denied" message="You do not have permission to open this page. If you think this is a mistake, log in with the right account." %}
+{% endblock %}

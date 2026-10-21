@@ -1,0 +1,350 @@
+/* ================= Home page ================= */
+
+/* ---------- Hero ---------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 2.5rem 0 4rem;
+}
+@media (min-width: 992px) {
+  .hero { padding: 4.5rem 0 6rem; }
+}
+
+/* Soft glows behind the hero */
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+.hero::before {
+  top: -140px;
+  right: -100px;
+  width: 440px;
+  height: 440px;
+  background: rgba(216, 60, 19, 0.14);
+}
+.hero::after {
+  bottom: -180px;
+  left: -140px;
+  width: 380px;
+  height: 380px;
+  background: rgba(245, 165, 36, 0.16);
+}
+
+/* Entrance animation: fade in and move up slightly, one part after another */
+.hero-in {
+  animation: page-in 700ms var(--ease) both;
+  animation-delay: var(--d, 0ms);
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  padding: 0.4rem 0.95rem 0.4rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.hero-eyebrow .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.hero-title {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.5rem, 5.5vw, 4.25rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.hero-title .accent { color: var(--color-accent); }
+
+.hero-text {
+  max-width: 46ch;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  color: var(--color-muted);
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
+  margin: 2rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.hero-trust li { display: inline-flex; align-items: center; gap: 0.4rem; }
+.hero-trust .bi { color: var(--color-accent); }
+
+/* ---------- Hero picture area ---------- */
+/* To use a real food photo later, add this line inside the block below:
+   --hero-image: url("../images/hero.jpg");
+   (and delete the <i> icon inside .hero-plate in templates/home/hero.html) */
+.hero-visual {
+  position: relative;
+  width: min(100%, 480px);
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.hero-plate {
+  position: absolute;
+  inset: 6%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    var(--hero-image, none) center / cover no-repeat,
+    radial-gradient(circle at 30% 25%, #ff9a6c 0%, #d83c13 60%, #a82a0a 100%);
+  box-shadow:
+    0 30px 60px rgba(216, 60, 19, 0.28),
+    inset 0 0 0 10px rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-size: clamp(5rem, 14vw, 8rem);
+}
+.hero-plate .bi { opacity: 0.92; }
+
+/* Small floating cards around the plate */
+.hero-chip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.95rem 0.65rem 0.7rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: 0.8rem;
+  line-height: 1.25;
+  animation: hero-float 6s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+}
+.hero-chip strong { display: block; font-size: 0.9rem; color: var(--color-ink); }
+.hero-chip small { color: var(--color-muted); }
+
+.hero-chip-icon {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 1.1rem;
+}
+
+.hero-chip-rating { top: 7%;     left: 0; }
+.hero-chip-time   { bottom: 9%;  left: 2%;  --float-delay: -2s; }
+.hero-chip-tag    { top: 36%;    right: 0;  --float-delay: -4s; }
+
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+
+@media (max-width: 575.98px) {
+  .hero-chip { padding: 0.5rem 0.7rem 0.5rem 0.5rem; }
+  .hero-chip-icon { width: 32px; height: 32px; font-size: 0.95rem; }
+  .hero-chip small { display: none; }
+}
+
+/* ---------- Categories ---------- */
+.category-row {
+  display: flex;
+  gap: 0.9rem;
+  padding: 0.5rem 0.25rem 1.25rem;
+  margin: 0 -0.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none; /* hide the scrollbar in Firefox */
+}
+.category-row::-webkit-scrollbar { display: none; } /* hide it in Chrome, Edge, Safari */
+
+.category-card {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 108px;
+  padding: 1rem 0.9rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-ink);
+  scroll-snap-align: start;
+  transition: transform var(--dur) var(--ease),
+              box-shadow var(--dur) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              background-color var(--dur-fast) var(--ease);
+}
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: #d6d3cc;
+}
+.category-card:active { transform: scale(0.97); }
+
+.category-card-media {
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+  font-size: 1.7rem;
+  transition: background-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              transform var(--dur) var(--ease);
+}
+.category-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.category-card:hover .category-card-media { transform: scale(1.08); }
+
+.category-card-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* The category that is currently selected */
+.category-card.is-active {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.category-card.is-active .category-card-media {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .category-card { min-width: 94px; padding: 0.85rem 0.7rem; }
+  .category-card-media { width: 58px; height: 58px; font-size: 1.45rem; }
+}
+
+/* ---------- Restaurant card (extends the food card styles) ---------- */
+.restaurant-status {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.94);
+}
+.restaurant-status.badge-delivered { color: #1b7a43; }
+.restaurant-status.badge-cancelled { color: #b3261e; }
+
+.restaurant-price {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.94);
+  color: var(--color-ink);
+}
+
+.restaurant-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.restaurant-meta li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.restaurant-meta .bi { color: var(--color-muted); }
+.restaurant-meta .meta-star { color: #f5a524; }
+
+.restaurant-location {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: auto 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--color-border);
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+/* A closed restaurant keeps its badge in full colour */
+.restaurant-card.is-unavailable .restaurant-status,
+.restaurant-card.is-unavailable .restaurant-price { filter: none; }
+
+/* ---------- Restaurant filters ---------- */
+
+/* Keeps the dropdown arrow from overlapping the text (fixes the form styles from Phase 2) */
+.form-select { padding-right: 2.5rem; }
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-field {
+  flex: 1 1 170px;
+  min-width: 0;
+}
+
+.filter-bar .form-select {
+  padding-block: 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+/* A filter that is switched on turns orange, so you can see what is active */
+.filter-bar .form-select.is-filtered {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+.filter-reset {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Make sure "hidden" always wins, so filtered-out cards really disappear */
+.restaurant-col[hidden],
+#restaurantEmpty[hidden] { display: none !important; }
+
+@media (max-width: 575.98px) {
+  .filter-field { flex-basis: calc(50% - 0.4rem); }
+  .filter-reset { width: 100%; }
+}

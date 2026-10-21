@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Your cart | Feastly{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/food.css' %}" rel="stylesheet">
+<link href="{% static 'css/cart.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+
+  <div class="mb-4">
+    <p class="text-uppercase fw-bold small mb-1" style="color: var(--color-accent); letter-spacing: 0.1em">Your order</p>
+    <h1 class="h2 mb-0">Cart</h1>
+  </div>
+
+  <!-- Shown when the cart is empty (JavaScript also shows it after the last item is removed) -->
+  <div id="cartEmpty" {% if items %}hidden{% endif %}>
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="bi bi-bag"></i></div>
+      <h2>Your cart is empty</h2>
+      <p>Add something delicious and it will show up here.</p>
+      <a href="{% url 'home' %}#popular" class="btn btn-accent">Explore food</a>
+    </div>
+  </div>
+
+  {% if items %}
+  <div class="row g-4 g-lg-5" id="cartContent">
+
+    <!-- Items -->
+    <div class="col-lg-7 col-xl-8">
+      <p class="cart-from">
+        <i class="bi bi-shop"></i> Ordering from <strong>{{ summary.restaurant.name }}</strong>
+      </p>
+
+      <ul class="cart-lines" id="cartLines">
+        {% for item in items %}
+        <li class="cart-line" data-cart-line="{{ item.pk }}"
+            data-update-url="{% url 'orders:cart_update' item.pk %}"
+            data-remove-url="{% url 'orders:cart_remove' item.pk %}">
+
+          <a class="cart-line-media" href="{% url 'menu:food_detail' item.food_item.slug %}" tabindex="-1" aria-hidden="true">
+            {% if item.food_item.primary_image %}
+              <img src="{{ item.food_item.primary_image.image.url }}" alt="" loading="lazy">
+            {% else %}
+              <span class="cart-line-placeholder"><i class="bi bi-egg-fried"></i></span>
+            {% endif %}
+          </a>
+
+          <div class="cart-line-info">
+            <h2 class="cart-line-name">
+              <a href="{% url 'menu:food_detail' item.food_item.slug %}">{{ item.food_item.name }}</a>
+            </h2>
+            <p class="cart-line-options">
+              {% if item.size %}{{ item.size.name }}{% endif %}
+              {% for extra in item.extras.all %}{% if item.size or not forloop.first %} &middot; {% endif %}{{ extra.name }}{% endfor %}
+            </p>
+            <p class="cart-line-unit">₹{{ item.unit_price|floatformat:"-2" }} each</p>
+          </div>
+
+          <div class="cart-line-actions">
+            <div class="qty qty-sm">
+              <button type="button" class="qty-btn" data-cart-minus aria-label="Decrease quantity of {{ item.food_item.name }}"><i class="bi bi-dash-lg"></i></button>
+              <span class="qty-value" data-cart-qty aria-live="polite">{{ item.quantity }}</span>
+              <button type="button" class="qty-btn" data-cart-plus aria-label="Increase quantity of {{ item.food_item.name }}"><i class="bi bi-plus-lg"></i></button>
+            </div>
+            <strong class="cart-line-total" data-line-total>₹{{ item.line_total|floatformat:"-2" }}</strong>
+            <button type="button" class="cart-remove" data-cart-remove aria-label="Remove {{ item.food_item.name }} from cart">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Order summary -->
+    <aside class="col-lg-5 col-xl-4" aria-label="Order summary">
+      <div class="summary-card">
+        <h2 class="summary-title">Order summary</h2>
+
+        <dl class="summary-rows">
+          <div class="summary-row">
+            <dt>Subtotal</dt>
+            <dd data-sum="subtotal">₹{{ summary.subtotal|floatformat:"-2" }}</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Delivery fee</dt>
+            <dd data-sum="delivery_fee">{% if summary.delivery_fee %}₹{{ summary.delivery_fee|floatformat:"-2" }}{% else %}Free{% endif %}</dd>
+          </div>
+          <div class="summary-row">
+            <dt>Tax</dt>
+            <dd data-sum="tax">₹{{ summary.tax|floatformat:"-2" }}</dd>
+          </div>
+          <div class="summary-row summary-discount" data-discount-row {% if not summary.discount %}hidden{% endif %}>
+            <dt>Discount</dt>
+            <dd data-sum="discount">-₹{{ summary.discount|floatformat:"-2" }}</dd>
+          </div>
+          <div class="summary-row summary-total">
+            <dt>Total</dt>
+            <dd data-sum="total">₹{{ summary.total|floatformat:"-2" }}</dd>
+          </div>
+        </dl>
+
+        <p class="summary-note" id="minNote" {% if summary.meets_minimum %}hidden{% endif %}>
+          <i class="bi bi-info-circle"></i> Minimum order is ₹{{ summary.min_order_amount|floatformat:"-2" }}.
+        </p>
+
+        <a href="{% url 'orders:checkout' %}" class="btn btn-accent btn-lg w-100 {% if not summary.meets_minimum %}is-disabled{% endif %}"
+           id="checkoutBtn" {% if not summary.meets_minimum %}aria-disabled="true"{% endif %}>
+          Proceed to checkout <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+        <a href="{% url 'home' %}#popular" class="summary-more">Add more items</a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Sticky bar for phones -->
+  <div class="mobile-cta d-lg-none" id="cartMobileBar">
+    <div>
+      <span class="mobile-cta-label">Total</span>
+      <strong data-sum="total">₹{{ summary.total|floatformat:"-2" }}</strong>
+    </div>
+    <a href="{% url 'orders:checkout' %}" class="btn btn-accent {% if not summary.meets_minimum %}is-disabled{% endif %}"
+       data-checkout-link {% if not summary.meets_minimum %}aria-disabled="true"{% endif %}>Checkout</a>
+  </div>
+  {% endif %}
+
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/cart.js' %}" defer></script>
+{% endblock %}

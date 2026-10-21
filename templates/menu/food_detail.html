@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static l10n %}
+
+{% block title %}{{ food.name }} | Feastly{% endblock %}
+{% block meta_description %}{{ food.description }}{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/food.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+{% with main=food.primary_image %}
+<section class="container pt-3 pb-5">
+
+  <!-- Breadcrumb -->
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <ol class="breadcrumb breadcrumb-soft mb-0">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'home' %}#popular">{{ food.category.name }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ food.name }}</li>
+    </ol>
+  </nav>
+
+  <div class="row g-5">
+
+    <!-- Left: photos -->
+    <div class="col-lg-6">
+      <div class="detail-gallery">
+        <div class="detail-media img-reveal">
+          {% if main %}
+            <img id="detailMainImage" src="{{ main.image.url }}" alt="{{ main.alt_text|default:food.name }}">
+          {% else %}
+            <div class="food-card-placeholder" role="img" aria-label="{{ food.name }}">
+              <i class="bi bi-egg-fried"></i>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if food.images.all|length > 1 %}
+        <div class="detail-thumbs">
+          {% for image in food.images.all %}
+            <button type="button" class="detail-thumb {% if image == main %}is-active{% endif %}"
+                    data-full="{{ image.image.url }}" data-alt="{{ image.alt_text|default:food.name }}"
+                    aria-label="Show photo {{ forloop.counter }}">
+              <img src="{{ image.image.url }}" alt="" loading="lazy">
+            </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Right: details and options -->
+    <div class="col-lg-6">
+      <div class="detail-info" id="foodConfigurator" data-base-price="{{ food.price|unlocalize }}">
+
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+          <span class="badge-soft badge-placed">{{ food.category.name }}</span>
+          {% if food.is_veg %}
+            <span class="detail-diet"><span class="diet-mark diet-veg" role="img" aria-label="Vegetarian"></span> Veg</span>
+          {% else %}
+            <span class="detail-diet"><span class="diet-mark diet-nonveg" role="img" aria-label="Non-vegetarian"></span> Non-veg</span>
+          {% endif %}
+        </div>
+
+        <h1 class="detail-title">{{ food.name }}</h1>
+
+        <p class="detail-restaurant">
+          <i class="bi bi-shop"></i> {{ food.restaurant.name }}
+          <span class="dot-sep" aria-hidden="true"></span>
+          <i class="bi bi-clock"></i> {{ food.restaurant.delivery_time_minutes }} min
+        </p>
+
+        <div class="rating mb-3">
+          {% if food.review_count %}
+            <i class="bi bi-star-fill"></i> {{ food.avg_rating|floatformat:1 }}
+            <a class="rating-count text-decoration-none" href="#reviews">({{ food.review_count }} review{{ food.review_count|pluralize }})</a>
+          {% else %}
+            <span class="rating-count">No reviews yet</span>
+          {% endif %}
+        </div>
+
+        <p class="detail-desc">{{ food.description }}</p>
+
+        {% if not food.is_available %}
+          <div class="detail-alert" role="alert"><i class="bi bi-exclamation-circle"></i> This item is currently unavailable.</div>
+        {% elif not food.restaurant.is_open %}
+          <div class="detail-alert" role="alert"><i class="bi bi-exclamation-circle"></i> {{ food.restaurant.name }} is closed right now.</div>
+        {% endif %}
+
+        <form id="foodForm" novalidate>
+
+          {% if sizes %}
+          <fieldset class="option-group">
+            <legend class="option-legend">Choose size</legend>
+            <div class="option-grid">
+              {% for size in sizes %}
+                <label class="option-card">
+                  <input type="radio" name="size" value="{{ size.id }}"
+                         data-delta="{{ size.price_delta|unlocalize }}"
+                         {% if size == default_size %}checked{% endif %}>
+                  <span class="option-body">
+                    <span class="option-name">{{ size.name }}</span>
+                    <span class="option-price">{% if size.price_delta %}+₹{{ size.price_delta|floatformat:"-2" }}{% else %}Included{% endif %}</span>
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+          {% endif %}
+
+          {% if extras %}
+          <fieldset class="option-group">
+            <legend class="option-legend">Extras <span class="option-hint">optional</span></legend>
+            <div class="option-grid">
+              {% for extra in extras %}
+                <label class="option-card">
+                  <input type="checkbox" name="extras" value="{{ extra.id }}"
+                         data-price="{{ extra.price|unlocalize }}">
+                  <span class="option-body">
+                    <span class="option-name">{{ extra.name }}</span>
+                    <span class="option-price">{% if extra.price %}+₹{{ extra.price|floatformat:"-2" }}{% else %}Free{% endif %}</span>
+                  </span>
+                </label>
+              {% endfor %}
+            </div>
+          </fieldset>
+          {% endif %}
+
+          <!-- Quantity, add to cart and wishlist -->
+          <div class="detail-actions">
+            <div class="qty" data-qty>
+              <button type="button" class="qty-btn" data-qty-minus aria-label="Decrease quantity"><i class="bi bi-dash-lg"></i></button>
+              <input type="number" class="qty-input" id="detailQty" name="quantity" value="1" min="1" max="20"
+                     inputmode="numeric" aria-label="Quantity">
+              <button type="button" class="qty-btn" data-qty-plus aria-label="Increase quantity"><i class="bi bi-plus-lg"></i></button>
+            </div>
+
+            <button type="submit" class="btn btn-accent btn-lg detail-add"
+                    {% if not food.is_available or not food.restaurant.is_open %}disabled{% endif %}>
+              <i class="bi bi-bag-plus me-2"></i>Add to cart
+              <span class="detail-add-sep" aria-hidden="true">&middot;</span>
+              <span data-total-price>₹{{ food.price|floatformat:"-2" }}</span>
+            </button>
+
+            <button type="button" class="btn btn-outline-ink btn-lg wishlist-inline" data-wishlist
+                    data-food-id="{{ food.id }}" aria-pressed="false"
+                    aria-label="Add {{ food.name }} to wishlist">
+              <i class="bi bi-heart"></i>
+            </button>
+          </div>
+        </form>
+
+        {% if food.ingredient_list %}
+        <div class="detail-section">
+          <h2 class="detail-subtitle">Ingredients</h2>
+          <div class="chip-list">
+            {% for item in food.ingredient_list %}
+              <span class="ingredient-chip">{{ item }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <section class="detail-reviews" id="reviews" aria-labelledby="reviews-title">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+      <h2 class="h3 mb-0" id="reviews-title">Reviews</h2>
+      {% if food.review_count %}
+        <div class="rating fs-6">
+          <i class="bi bi-star-fill"></i> {{ food.avg_rating|floatformat:1 }}
+          <span class="rating-count">based on {{ food.review_count }} review{{ food.review_count|pluralize }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    {% for review in reviews %}
+      <article class="review">
+        <div class="review-avatar" aria-hidden="true">{{ review.user.username|slice:":1"|upper }}</div>
+        <div class="review-body">
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <strong>{{ review.user.username }}</strong>
+            <time class="small text-muted-soft" datetime="{{ review.created_at|date:'Y-m-d' }}">{{ review.created_at|date:"d M Y" }}</time>
+          </div>
+          <div class="review-stars" role="img" aria-label="{{ review.rating }} out of 5 stars">
+            {% for i in "12345" %}
+              <i class="bi {% if forloop.counter <= review.rating %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+            {% endfor %}
+          </div>
+          {% if review.comment %}<p class="mb-0">{{ review.comment }}</p>{% endif %}
+        </div>
+      </article>
+    {% empty %}
+      <div class="empty-state">
+        <div class="empty-state-icon"><i class="bi bi-chat-heart"></i></div>
+        <h3>No reviews yet</h3>
+        <p>Be the first to tell others what you thought of {{ food.name }}.</p>
+      </div>
+    {% endfor %}
+  </section>
+
+  <!-- Similar foods -->
+  {% if related_foods %}
+  <section class="mt-5 pt-4" aria-labelledby="related-title">
+    <h2 class="h3 mb-4" id="related-title">You may also like</h2>
+    <div class="row g-4">
+      {% for item in related_foods %}
+        <div class="col-12 col-sm-6 col-lg-4">
+          {% include "partials/food_card.html" with food=item %}
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</section>
+
+<!-- Sticky bar for phones: always shows the total and the Add button -->
+<div class="mobile-cta d-lg-none">
+  <div>
+    <span class="mobile-cta-label">Total</span>
+    <strong data-total-price>₹{{ food.price|floatformat:"-2" }}</strong>
+  </div>
+  <button type="submit" form="foodForm" class="btn btn-accent"
+          {% if not food.is_available or not food.restaurant.is_open %}disabled{% endif %}>
+    <i class="bi bi-bag-plus me-1"></i>Add to cart
+  </button>
+</div>
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/food.js' %}" defer></script>
+{% endblock %}

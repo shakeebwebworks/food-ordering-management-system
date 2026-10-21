@@ -1,0 +1,322 @@
+/* ================= Food details page ================= */
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb-soft { font-size: 0.85rem; font-weight: 600; }
+.breadcrumb-soft a { color: var(--color-muted); text-decoration: none; }
+.breadcrumb-soft a:hover { color: var(--color-accent); }
+.breadcrumb-soft .breadcrumb-item.active { color: var(--color-ink); }
+.breadcrumb-soft .breadcrumb-item + .breadcrumb-item::before { color: #b9b9c2; }
+
+/* ---------- Photos ---------- */
+@media (min-width: 992px) {
+  /* The photo stays in view while you scroll through the options */
+  .detail-gallery { position: sticky; top: 96px; }
+}
+
+.detail-media {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #ecebe7;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+.detail-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 400ms var(--ease);
+}
+.detail-media .food-card-placeholder { font-size: 5rem; }
+
+.detail-thumbs {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+.detail-thumb {
+  flex: none;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  overflow: hidden;
+  background: #ecebe7;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  opacity: 0.7;
+  transition: opacity var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.detail-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.detail-thumb:hover { opacity: 1; transform: translateY(-2px); }
+.detail-thumb.is-active { opacity: 1; border-color: var(--color-accent); }
+
+/* ---------- Title area ---------- */
+.detail-diet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.detail-title {
+  margin-bottom: 0.6rem;
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  letter-spacing: -0.03em;
+}
+
+.detail-restaurant {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.dot-sep {
+  width: 4px;
+  height: 4px;
+  margin: 0 0.35rem;
+  border-radius: 50%;
+  background: #b9b9c2;
+}
+
+.detail-desc {
+  margin-bottom: 1.5rem;
+  font-size: 1.02rem;
+  color: var(--color-muted);
+}
+
+.detail-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1rem;
+  background: #fdeaea;
+  border-radius: var(--radius-sm);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #b3261e;
+}
+
+/* ---------- Size and extras ---------- */
+.option-group {
+  min-width: 0;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  border: 0;
+}
+.option-legend {
+  float: none;
+  width: auto;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+}
+.option-hint {
+  margin-left: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.option-card { position: relative; display: block; margin: 0; cursor: pointer; }
+.option-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  height: 100%;
+  padding: 0.8rem 1rem;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast) var(--ease),
+              background-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.option-card:hover .option-body { border-color: #d6d3cc; transform: translateY(-2px); }
+.option-card input:checked + .option-body {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+  box-shadow: 0 0 0 3px rgba(216, 60, 19, 0.12);
+}
+.option-card input:focus-visible + .option-body {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.option-name { font-size: 0.95rem; font-weight: 700; color: var(--color-ink); }
+.option-price { font-size: 0.82rem; font-weight: 600; color: var(--color-muted); }
+.option-card input:checked + .option-body .option-price { color: var(--color-accent); }
+
+/* ---------- Quantity, add to cart, wishlist ---------- */
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+}
+
+.qty {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-pill);
+}
+.qty-btn {
+  width: 46px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-ink);
+  transition: color var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.qty-btn:hover { color: var(--color-accent); }
+.qty-btn:active { transform: scale(0.85); }
+.qty-btn:disabled { color: #c4c4cc; pointer-events: none; }
+
+.qty-input {
+  width: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-ink);
+  -moz-appearance: textfield;
+}
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.qty-input:focus { outline: none; }
+.qty:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px rgba(216, 60, 19, 0.12);
+}
+
+.detail-add { flex: 1 1 220px; min-height: 54px; }
+.detail-add:disabled { opacity: 0.55; pointer-events: none; }
+.detail-add-sep { margin: 0 0.6rem; opacity: 0.6; }
+
+.wishlist-inline {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  font-size: 1.15rem;
+}
+.wishlist-inline.is-active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+.wishlist-inline.is-active i { animation: heart-pop 450ms var(--ease); }
+
+/* The price changes: a small pop so you notice it */
+.price-bump { animation: cart-bump 350ms var(--ease); display: inline-block; }
+
+/* ---------- Ingredients ---------- */
+.detail-section { margin-top: 2rem; padding-top: 1.75rem; border-top: 1px dashed var(--color-border); }
+.detail-subtitle { margin-bottom: 0.9rem; font-size: 0.95rem; font-weight: 800; letter-spacing: -0.01em; }
+.ingredient-chip {
+  padding: 0.4rem 0.9rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ---------- Reviews ---------- */
+.detail-reviews {
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--color-border);
+  scroll-margin-top: 90px;
+}
+.review {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.review + .review { margin-top: 0.9rem; }
+.review-avatar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  font-weight: 800;
+  color: var(--color-accent);
+}
+.review-body { flex: 1; min-width: 0; }
+.review-stars { margin: 0.25rem 0 0.5rem; font-size: 0.85rem; color: #f5a524; }
+
+/* ---------- Sticky bar on phones ---------- */
+.mobile-cta {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
+  border-top: 1px solid var(--color-border);
+  box-shadow: 0 -8px 24px rgba(22, 22, 26, 0.08);
+}
+.mobile-cta-label { display: block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+.mobile-cta strong { font-size: 1.25rem; font-weight: 800; color: var(--color-ink); }
+.mobile-cta .btn:disabled { opacity: 0.55; pointer-events: none; }
+
+@media (max-width: 991.98px) {
+  /* Leave room so the sticky bar never covers the footer */
+  body { padding-bottom: 84px; }
+}
+
+@media (max-width: 575.98px) {
+  .detail-actions { gap: 0.6rem; }
+  .qty-btn { width: 42px; height: 48px; }
+  .detail-add { min-height: 50px; }
+  .wishlist-inline { width: 50px; height: 50px; }
+}

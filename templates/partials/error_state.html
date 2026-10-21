@@ -1,0 +1,16 @@
+<section class="error-page" aria-labelledby="error-title">
+  <div class="error-card">
+    <p class="error-code" aria-hidden="true">{{ code }}</p>
+    <div class="empty-state-icon"><i class="bi {{ icon }}"></i></div>
+    <h1 id="error-title">{{ title }}</h1>
+    <p class="error-text">{{ message }}</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+      <a href="{% url 'home' %}" class="btn btn-accent">Back to home</a>
+      {% if reload %}
+        <button type="button" class="btn btn-outline-ink" onclick="window.location.reload()">Reload the page</button>
+      {% else %}
+        <button type="button" class="btn btn-outline-ink" onclick="history.back()">Go back</button>
+      {% endif %}
+    </div>
+  </div>
+</section>
